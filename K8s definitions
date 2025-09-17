@@ -1,0 +1,174 @@
+What is Kubernetes?
+Kubernetes (K8s) is an open-source container orchestration platform that automates deployment, scaling, and management of containerized applications.
+It ensures applications run reliably across clusters of machines (nodes).
+It supports self-healing, load balancing, automated rollouts and rollbacks, and offers flexibility across on-premise, public cloud, and hybrid environments.
+
+Kubernetes architecture divides into:
+	• Control plane: The cluster’s “brain.” Components include API server, scheduler, controller manager, and etcd (cluster data storage).
+	• Worker nodes: Machines running actual application containers, each with kubelet, a container runtime, and kube-proxy.
+
+Control Plane Components
+	• API Server: Entry point for all commands (kubectl).
+		a. It validates and processes REST requests, updating the state in etcd.
+		b. It's the only component you talk to directly (via kubectl).
+
+	• etcd: Distributed key-value store for cluster state.
+		a. Distributed key-value store retaining cluster configuration/state.
+		b. A consistent and highly-available key-value store used as Kubernetes' backing store for all cluster data.
+		
+	• Controller Manager: Ensures cluster matches desired state (e.g., Deployment → Pods).
+		a. Manages background controllers (like Deployments, ReplicaSets).
+		b. Decides on which node to assign new pods based on resource availability.
+		
+	• Scheduler: Assigns Pods to Nodes based on resources and policies.
+
+
+Worker Node Components
+	• Kubelet: Agent that runs on each node, ensures containers are running in Pods.
+		a. It takes a set of PodSpecs (YAML/JSON manifests) and ensures the described containers are running and healthy.
+	• Kube-Proxy: Handles networking/routing between Pods and Services.
+		a. Maintains network rules on each node for cluster networking and service discovery.
+		b. Maintains network rules on the node. These rules allow network communication to your Pods from inside or outside the cluster (e.g., forwarding traffic to the right Pod).
+	• Container Runtime: Software to run containers (Docker, containerd, CRI-O).
+		a. The underlying software that is responsible to run containers.
+
+ Pod
+	• The smallest deployable unit in Kubernetes.
+	• A Pod can have one or more containers that share the same network and storage.
+	•  Pods are ephemeral (short-lived); they are created and destroyed as needed.
+	• The most common use case is one container per Pod.
+	• Pods can host single containers (most common) or tightly-coupled multi-container applications.
+
+Namespace
+	• A way to logically divide a cluster.
+	• A logical partition to organize and isolate cluster resources; each resource name is unique within a namespace and namespaces allow resource quotas and access control.
+	• Useful for organizing resources (e.g., dev, test, prod environments).
+	• Provides isolation and resource scoping.
+
+Deployment
+	• A higher-level object that manages Pods.
+	• Ensures the desired number of Pods are running, supports rolling updates & rollbacks.
+	• Example: run 3 replicas of your app, Kubernetes ensures that always 3 Pods are alive.
+	• A higher-level abstraction that manages the deployment and scaling of a set of Pods, and provides declarative updates for Pods and ReplicaSets.
+
+Service
+	• Provides stable networking to Pods.
+	• Since Pods are ephemeral, Services give a permanent IP and DNS name.
+	• An abstraction that defines a policy for accessing Pods, providing stable networking (IP/DNS) despite changing pod lifecycles.
+	• Services use selectors to target Pods and support several types (ClusterIP, NodePort, LoadBalancer)
+	• Types:
+		○ ClusterIP – internal access (default).
+		○ NodePort – exposes service on each node’s IP at a static port.
+		○ LoadBalancer – integrates with cloud load balancer.
+		○ ExternalName – maps service to an external DNS name.
+		
+ReplicaSet
+	• Ensures a specified number of Pod replicas are running.
+	• Used by Deployments internally.
+	• You rarely create ReplicaSets directly.
+	• Maintains a stable set of replica Pods at any time, automatically replacing failed or deleted pods. Usually managed indirectly via Deployments.
+	• If we want to update the image version it won't reflect in the pod template. 
+	
+ReplicationController
+	• An older version of ReplicaSet (less features).
+	• Mostly replaced by ReplicaSet/Deployment.
+	• Ensures a fixed number of pod replicas are running. ReplicaSets offer more flexible label selectors than ReplicationControllers.
+	
+Volumes
+	• Provide storage for Pods.
+	• A directory accessible to containers in a Pod. Data in a regular volume persists only as long as the Pod exists.
+	• Persist data beyond container restarts.
+	• Types: emptyDir, hostPath, configMap, secret, persistentVolumeClaim, etc.
+	
+Persistent Volume (PV)
+	• A piece of storage provisioned by admin (NFS, cloud disk, etc).
+	• Cluster-level resource, independent of Pods.
+	
+Persistent Volume Claim (PVC)
+	• A request for storage made by a user.
+	• Binds to a PV that matches requirements (size, access mode).
+	• A user's request for storage specifying size, access mode, and other requirements. Kubernetes binds PVCs to available PVs.
+
+Resource Requests & Limits
+	• Define CPU & Memory usage for Pods.
+	• Request = minimum resources guaranteed.
+		○ The amount of CPU/memory that is guaranteed to a container.
+		○ The scheduler uses this value to decide which node to place the Pod on.
+	• Limit = maximum resources allowed.
+		○ The maximum amount of CPU/memory a container is allowed to use. If it exceeds the memory limit, it gets killed. If it exceeds the CPU limit, it is throttled.
+	• Enable fine-grained control over CPU/memory usage per Pod/container, requesting minimum resources and setting maximum limits to avoid overconsumption.
+
+Probes
+	• Mechanisms for checking Pod health:
+		○ Liveness Probe – restarts container if it’s unhealthy.
+			§ Determines if the container is alive. If it fails, the kubelet restarts the container.
+		○ Readiness Probe – decides if Pod is ready to serve traffic.
+			§ Determines if the container is ready to serve traffic. If it fails, the Service stops sending traffic to the Pod.
+		○ Startup Probe – checks if app has started before liveness kicks in.
+			§ Used to know when a slow-starting container application has finished initializing.
+	• Health-check features (liveness, readiness, startup) run inside pods to detect application health and facilitate automated recovery or traffic removal.
+	
+Ingress Controller & Ingress
+	• Ingress: Manages HTTP/HTTPS traffic into the cluster (like API gateway).
+	• Ingress Controller: Actual implementation (e.g., NGINX, Traefik, HAProxy).
+	• Ingress controller Manages external access to cluster services, typically HTTP/HTTPS, via Ingress resources that define routing rules and TLS settings.
+	• Ingress: An API object that manages external access to the services in a cluster, typically HTTP/HTTPS. It provides routing rules (e.g., send traffic for myapp.com/admin to the admin-service).
+	• Ingress Controller: The process that fulfills the Ingress rules. It's an application (like Nginx, Traefik, or HAProxy) that runs in your cluster, watches for Ingress objects, and configures its internal load balancer to route traffic as specified.
+
+StatefulSet
+	• Manages stateful applications (databases, Kafka, etc).
+	• Provides stable identities & persistent storage for each Pod.
+	• A controller managing applications that require stable, persistent identities (like databases), ensuring unique network/storage per pod and ordered deployment/scaling.
+	• It is like a Deployment, but for stateful applications (e.g., databases like MySQL, Kafka, Elasticsearch). It manages the deployment and scaling of a set of Pods and provides guarantees about the ordering and uniqueness of these Pods.
+
+ConfigMap
+	• A resource for storing non-sensitive configuration data consumed by pod as environment variables, command-line arguments, or configuration files.
+	• Allows us to decouple configuration artifacts (like config files, environment variables, command-line arguments) from container images.
+	• Stores configuration data in key-value pairs.
+	• (Injected into Pods as environment variables or files.)
+
+Secrets
+	• Store sensitive data (passwords, API keys, certs).
+	• Base64-encoded. Mounted into Pods like ConfigMaps.
+	• Stores sensitive information such as passwords, tokens, and keys, which can be injected into pods securely, separate from container images.
+	
+Labels
+	• Key-value pairs attached to objects (Pods, Services, etc).
+	• Used for organization & selection. Example: app=frontend.
+	• Key-value pairs attached to objects (e.g., Pods) to identify attributes that are meaningful and relevant to users. (e.g., app: frontend, tier: web, environment: prod).
+
+Selectors
+	• Allow filtering based on labels.
+	• Example: a Service with selector app=frontend sends traffic only to Pods with that label.
+	•  Used to identify a set of objects based on their labels. A Service uses a selector to know which Pods to send traffic to.
+	• Explanation: Labels are like tags you put on your objects. Selectors are how you query for objects with specific tags. They are the primary grouping mechanism in Kubernetes.
+
+Annotations
+	• Key-value metadata (like labels but not for selection).
+	• Used for tools/automation (e.g., monitoring configs, build info).
+	• Definition: Key-value pairs used to attach arbitrary non-identifying metadata to objects. This is data for tools and libraries to retrieve, not for selecting objects.
+	• Explanation: While labels are for identifying and selecting objects, annotations are for extra information. Examples: build version, git branch, contact information, or a description of why an object exists.
+
+HPA (Horizontal Pod Autoscaler)
+	• Automatically scales the number of Pod replicas based on observed CPU utilization or custom metrics.
+	• Scales Pods horizontally (adds/removes replicas) based on metrics (CPU, memory, custom).
+
+VPA (Vertical Pod Autoscaler)
+	• Adjusts CPU/memory requests & limits for Pods automatically.
+	• Automatically adjusts the CPU and memory requests and limits for your containers based on usage history.
+	• Adjusts resource requests/limits for pods dynamically based on actual usage trends over time.
+
+DaemonSet
+	• Ensures a Pod runs on every (or selected) Node.
+	• Example: logging agents, monitoring agents (Fluentd, Datadog, Prometheus node exporter).
+	• Ensures that a copy of a pod runs on every (or selected) node in the cluster—ideal for node-level services like monitoring or logging.
+	• Explanation: Perfect for cluster-level services that need to run on every node, like log collectors (e.g., Fluentd), monitoring agents (e.g., Prometheus Node Exporter), or network plugins (e.g., Calico).
+
+Init Containers
+	• Run before the main container in a Pod.
+	• Used for setup tasks (e.g., load config, check dependencies).
+	• If this container fails, main container will not start.
+	
+Sidecar Containers
+	• Containers running alongside the main app container in a Pod.
+	• Extend functionality (e.g., logging, monitoring, service mesh proxy).
