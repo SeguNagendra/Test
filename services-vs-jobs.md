@@ -3,17 +3,17 @@
 ## 🚦 Kubernetes Service
 
 -   **Purpose**: Provides a **stable network endpoint** to access a set
-    of Pods.\
+    of Pods.
 -   **Why**: Pods are ephemeral (IP changes if restarted), so Service
-    gives them a **permanent IP and DNS name**.\
+    gives them a **permanent IP and DNS name**.
 -   **Use case**: Long-running applications (like web servers, APIs,
-    databases).\
+    databases).
 -   **Types**:
-    -   `ClusterIP` → internal cluster-only access.\
+    -   `ClusterIP` → internal cluster-only access.
     -   `NodePort` → exposes service on each Node's IP at a static
-        port.\
+        port.
     -   `LoadBalancer` → integrates with cloud load balancers for
-        external access.\
+        external access.
     -   `ExternalName` → maps a service to an external DNS name.
 
 📌 *Example*: Exposing an Nginx web server to users.
@@ -22,14 +22,14 @@
 
 ## 🏁 Kubernetes Job
 
--   **Purpose**: Runs **batch/short-lived tasks** to completion.\
+-   **Purpose**: Runs **batch/short-lived tasks** to completion.
 -   **Why**: Unlike Deployments (which keep Pods alive), a Job ensures a
-    Pod runs until the task finishes successfully.\
+    Pod runs until the task finishes successfully.
 -   **Use case**: One-time or scheduled workloads (data processing,
-    backups, sending emails, DB migrations).\
+    backups, sending emails, DB migrations).
 -   **Behavior**:
-    -   Runs Pods until they complete.\
-    -   Can be configured with retries if Pods fail.\
+    -   Runs Pods until they complete.
+    -   Can be configured with retries if Pods fail.
     -   A **CronJob** is used to run Jobs on a schedule (like a cron
         task).
 
@@ -69,6 +69,6 @@
 
 ------------------------------------------------------------------------
 
-✅ **In short:**\
-- **Service** = "How do I reach my app reliably?"\
+✅ **In short:**
+- **Service** = "How do I reach my app reliably?"
 - **Job** = "Run this work until it's done, then stop."
