@@ -1,0 +1,29 @@
+# Create a cluster (default name = kind)
+kind create cluster
+
+# Create a cluster with a custom name
+kind create cluster --name mycluster
+
+# Create cluster with specific Kubernetes version
+kind create cluster --image kindest/node:v1.29.0
+
+# Delete a cluster
+kind delete cluster --name mycluster
+
+# List all clusters
+kind get clusters
+
+# Get kubeconfig for a cluster
+kind get kubeconfig --name mycluster
+
+# Export logs (useful for debugging)
+kind export logs ./cluster-logs
+
+# Load a Docker image into the kind cluster (instead of pulling from registry)
+kind load docker-image myimage:latest --name mycluster
+
+# Load a local image tar file
+kind load image-archive image.tar --name mycluster
+
+# Run cluster with a custom config file (multi-node etc.)
+kind create cluster --config=kind-config.yaml
