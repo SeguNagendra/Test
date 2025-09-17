@@ -38,33 +38,16 @@
 ------------------------------------------------------------------------
 
 ## ⚡ Key Differences Table
+| Feature      | Service 🚦                                       | Job 🏁                                                 |
+| ------------ | ------------------------------------------------ | ------------------------------------------------------ |
+| **Purpose**  | Provides stable networking to access Pods        | Ensures Pods run tasks **to completion**               |
+| **Lifespan** | Long-running (always available)                  | Short-lived (stops after success/failure)              |
+| **Use case** | Expose apps (web, DB, API)                       | Batch tasks, data processing, backups                  |
+| **Scaling**  | Distributes traffic across Pods (load balancing) | Runs multiple Pods if specified, but all must complete |
+| **Types**    | ClusterIP, NodePort, LoadBalancer, ExternalName  | Job, CronJob                                           |
+| **Example**  | Web server accessible at `myapp-service:80`      | Backup job that runs once and exits                    |
 
-  --------------------------------------------------------------------------
-  Feature                         Service 🚦              Job 🏁
-  ------------------------------- ----------------------- ------------------
-  **Purpose**                     Provides stable         Ensures Pods run
-                                  networking to access    tasks **to
-                                  Pods                    completion**
-
-  **Lifespan**                    Long-running (always    Short-lived (stops
-                                  available)              after
-                                                          success/failure)
-
-  **Use case**                    Expose apps (web, DB,   Batch tasks, data
-                                  API)                    processing,
-                                                          backups
-
-  **Scaling**                     Distributes traffic     Runs multiple Pods
-                                  across Pods (load       if specified, but
-                                  balancing)              all must complete
-
-  **Types**                       ClusterIP, NodePort,    Job, CronJob
-                                  LoadBalancer,           
-                                  ExternalName            
-
-  **Example**                     Web server accessible   Backup job that
-                                  at `myapp-service:80`   runs once and
-                                                          exits
+  
   --------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
